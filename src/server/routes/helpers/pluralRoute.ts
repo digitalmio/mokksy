@@ -3,7 +3,7 @@ import { FastifyInstance } from 'fastify';
 import pluralize from 'pluralize';
 import { objectKeysDeep } from '../../helpers/objectKeysDeep';
 import { PAGINATION_LIMT } from '../../config/consts';
-import type { AnyObject } from '../../../types.d';
+import type { AnyObject } from '../../../../types.d';
 
 export const pluralRoute = async (
   f: FastifyInstance,
@@ -127,7 +127,7 @@ export const pluralRoute = async (
     // You can only embed top level resource, so
     if (_expand && !_expand.includes('.')) {
       // check if this item is in the list of allowed headers (we have key for it in object)
-      const isAllowed = valueKeysOps.includes(`${_expand}${fks}`); // TODO: change hardcoded "Id" to param
+      const isAllowed = valueKeysOps.includes(`${_expand}${fks}`);
 
       if (isAllowed) {
         const expandData = f.lowDb.get(pluralize(_expand)).value() || [];
@@ -158,26 +158,37 @@ export const pluralRoute = async (
   // Get single resource by Id
   f.get(`/${key}/:id`, async (request, reply) => {
     // user may want to expand or embed like in the listing, but it is simpler here
-    const { _expand } = request.query;
+    const { _expand, _embed } = request.query;
     const paramId = parseInt(request.params.id, 10);
 
     const data = f.lowDb
       .get(key)
       .value()
-      .find((el: AnyObject) => el.id === paramId);
+      .find((el: AnyObject) => el[idKey] === paramId);
 
-    if (_expand) {
+    if (_expand && !_expand.includes('.')) {
       // check allowed headers
-      const isAllowed = Object.keys(data).includes(`${_expand}Id`); // TODO: hardcoded "Id"
+      const isAllowed = Object.keys(data).includes(`${_expand}${fks}`);
       if (isAllowed) {
         const expandData = f.lowDb
           .get(pluralize(_expand))
           .value()
-          .find((el: AnyObject) => el.id === data[`${_expand}Id`]); // TODO: you guessed it! "Id" key
+          .find((el: AnyObject) => el[idKey] === data[`${_expand}${fks}`]);
 
         // eslint-disable-next-line no-underscore-dangle
         data[_expand] = expandData;
       }
+    }
+
+    if (_embed && !_embed.includes('.')) {
+      const emKey = `${pluralize.singular(key)}${fks}`;
+      const embedData = f.lowDb
+        .get(_embed)
+        .value()
+        .filter((emEl: AnyObject) => emEl[emKey] === data[idKey]);
+
+      // eslint-disable-next-line no-underscore-dangle
+      data[_expand] = embedData;
     }
 
     if (data) {

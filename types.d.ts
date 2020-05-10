@@ -1,11 +1,11 @@
 import Lowdb from 'lowdb';
 
 declare interface AnyObject {
-  [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }
 
 interface MokksyConfig {
-  filename: string;
+  sourceFile: string;
   watch?: boolean;
   host: string;
   port: number;
@@ -23,7 +23,6 @@ interface MokksyConfig {
 
 declare module 'fastify' {
   interface FastifyInstance {
-    lowDb: Lowdb.LowdbSync<any[]>; // eslint-disable-line @typescript-eslint/no-explicit-any
-    blah: number;
+    lowDb: Lowdb.LowdbSync<any[]>;
   }
 }

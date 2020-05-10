@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
-import { Server, IncomingMessage, ServerResponse } from 'http';
+import type { Server, IncomingMessage, ServerResponse } from 'http';
+
 import fastify from 'fastify';
 import fastifyCors from 'fastify-cors';
 import fastifyFavicon from 'fastify-favicon';
@@ -11,8 +12,8 @@ import { genReqId } from './helpers/generateReqId';
 import { portFinder } from './helpers/portFinder';
 import dynamicRoutes from './routes/dynamic';
 
-// types only
-import type { MokksyConfig } from '../types.d';
+// local types only
+import type { MokksyConfig } from '../../types.d';
 
 export const server = async (options: MokksyConfig): Promise<void> => {
   const app: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> = fastify({
@@ -22,13 +23,13 @@ export const server = async (options: MokksyConfig): Promise<void> => {
     genReqId,
   });
 
-  const { filename, port, staticPath, noStatic, noCors } = options;
+  const { sourceFile, port, staticPath, noStatic, noCors } = options;
 
   // find port to run the app, this cannot be done via the FP
   const availablePort = await portFinder(port);
 
   // import LowDB
-  app.register(lowDB, { filename });
+  app.register(lowDB, { sourceFile });
 
   // Always display empty favicon
   // TODO: check if favicon exists if we are hosting static site
