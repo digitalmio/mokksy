@@ -1,10 +1,18 @@
-import { flatten, uniq, pick, orderBy, chunk, keys } from 'lodash';
+import { flatten, uniq, pick, orderBy, chunk, get } from 'lodash';
 import { FastifyInstance } from 'fastify';
 import pluralize from 'pluralize';
+import { objectKeysDeep } from '../../helpers/objectKeysDeep';
 import { PAGINATION_LIMT } from '../../config/consts';
 import type { AnyObject } from '../../../types.d';
 
-export const pluralRoute = async (f: FastifyInstance, key: string): Promise<void> => {
+export const pluralRoute = async (
+  f: FastifyInstance,
+  key: string,
+  options: AnyObject
+): Promise<void> => {
+  // get data from user options
+  const { filtering, foreignKeySuffix: fks, idKey } = options;
+
   // Get all resources
   f.get(`/${key}`, async (request, reply) => {
     // defined allowed query params deconstruct
@@ -17,7 +25,7 @@ export const pluralRoute = async (f: FastifyInstance, key: string): Promise<void
     // allow query by field names available in the set
     // each object in collection can have different keys
     // get all keys from every collection object, then flatten them and de-dupe
-    const valueKeys: string[] = uniq(flatten(data.map((el: AnyObject) => Object.keys(el))));
+    const valueKeys: string[] = uniq(flatten(data.map((el: AnyObject) => objectKeysDeep(el))));
     const operators = ['', '_gte', '_lte', '_ne', '_like'];
     const valueKeysOps = valueKeys.reduce((acc: string[], el) => {
       const keyOps = operators.map((o) => el + o);
@@ -25,45 +33,48 @@ export const pluralRoute = async (f: FastifyInstance, key: string): Promise<void
     }, []);
     const queryDataFiltered = pick(request.query, valueKeysOps);
 
-    console.log({ queryDataFiltered });
+    // handle filtering
+    if (Object.keys(queryDataFiltered).length > 0) {
+      data = data.filter((el: AnyObject) => {
+        const filtered: boolean[] = Object.keys(queryDataFiltered).map((queryParmKey: string) => {
+          // greater than or equal
+          if (queryParmKey.endsWith('_gte')) {
+            const qp = queryParmKey.slice(0, -4);
+            return get(el, qp) >= queryDataFiltered[queryParmKey];
+          }
 
-    // handle simple filtering, non-ops
-    data = data.filter(
-      (el: AnyObject) =>
-        !Object.keys(queryDataFiltered)
-          .map((queryParmKey: string) => {
-            // greater than or equal
-            if (queryParmKey.endsWith('_gte')) {
-              const qp = queryParmKey.slice(0, -4);
-              return el[qp] >= queryDataFiltered[queryParmKey];
-            }
+          // lower than or equal
+          if (queryParmKey.endsWith('_lte')) {
+            const qp = queryParmKey.slice(0, -4);
+            return get(el, qp) <= queryDataFiltered[queryParmKey];
+          }
 
-            // lower than or equal
-            if (queryParmKey.endsWith('_lte')) {
-              const qp = queryParmKey.slice(0, -4);
-              return el[qp] <= queryDataFiltered[queryParmKey];
-            }
-
-            // not qual
-            if (queryParmKey.endsWith('_ne')) {
-              const qp = queryParmKey.slice(0, -3);
-              // Double eq as query param is a string, so you would not be able to work with ID's
-              // eslint-disable-next-line eqeqeq
-              return el[qp] != queryDataFiltered[queryParmKey];
-            }
-
-            if (queryParmKey.endsWith('_like')) {
-              const qp = queryParmKey.slice(0, -4);
-              return el[qp].includes(queryDataFiltered[queryParmKey]);
-            }
-
-            // default behaviour - standard comparison
-            // double eq as query param is a string, so you would not be able to work with ID's
+          // not qual
+          if (queryParmKey.endsWith('_ne')) {
+            const qp = queryParmKey.slice(0, -3);
+            // Double eq as query param is a string, so you would not be able to work with ID's
+            // and unfortunately we do not have a list of the non-string keys.
             // eslint-disable-next-line eqeqeq
-            return el[queryParmKey] == queryDataFiltered[queryParmKey];
-          })
-          .includes(false)
-    );
+            return get(el, qp) != queryDataFiltered[queryParmKey];
+          }
+
+          if (queryParmKey.endsWith('_like')) {
+            const qp = queryParmKey.slice(0, -5);
+            return get(el, qp).includes(queryDataFiltered[queryParmKey]);
+          }
+
+          // Default behaviour - standard comparison
+          // Double eq as query param is a string, so you would not be able to work with ID's
+          // and unfortunately we do not have a list of the non-string keys.
+          // eslint-disable-next-line eqeqeq
+          return get(el, queryParmKey) == queryDataFiltered[queryParmKey];
+        });
+
+        // incl: all elements inside array are true (aka, no false)
+        // excl: at least one true element
+        return filtering === 'incl' ? !filtered.includes(false) : filtered.includes(true);
+      });
+    }
 
     // handle sort: _sort, _order
     if (_sort) {
@@ -89,7 +100,7 @@ export const pluralRoute = async (f: FastifyInstance, key: string): Promise<void
         next: page + 1 > groupedData.length ? groupedData.length : page + 1,
         last: groupedData.length,
       };
-      const linkHeader = keys(linkHeaderData).map(
+      const linkHeader = Object.keys(linkHeaderData).map(
         (el) =>
           `<http://${hostname}/${key}?_page=${linkHeaderData[el]}&_limit=${limit}>; rel="${el}"` // eslint-disable-line
       );
@@ -113,32 +124,31 @@ export const pluralRoute = async (f: FastifyInstance, key: string): Promise<void
     }
 
     // handle more data: _expand, _embed
-    // TODO: extract this to separate module, so it can be used in the single and singular routes
-    if (_expand) {
+    // You can only embed top level resource, so
+    if (_expand && !_expand.includes('.')) {
       // check if this item is in the list of allowed headers (we have key for it in object)
-      const isAllowed = valueKeysOps.includes(`${_expand}Id`); // TODO: change hardcoded "Id" to param
+      const isAllowed = valueKeysOps.includes(`${_expand}${fks}`); // TODO: change hardcoded "Id" to param
 
       if (isAllowed) {
         const expandData = f.lowDb.get(pluralize(_expand)).value() || [];
-        data = data.reduce((acc: AnyObject[], el: AnyObject) => {
+        data = data.map((el: AnyObject) => {
           // eslint-disable-next-line no-underscore-dangle
-          el[_expand] = expandData.find((eEl: AnyObject) => eEl.id === el[`${_expand}Id`]);
-          acc.push(el);
-          return acc;
-        }, []);
+          el[_expand] = expandData.find(
+            (exEl: AnyObject) => el[idKey] === exEl[`${_expand}${fks}`]
+          );
+          return el;
+        });
       }
     }
 
-    if (_embed) {
+    if (_embed && !_embed.includes('.')) {
       const embedData = f.lowDb.get(_embed).value() || [];
-      data = data.reduce((acc: AnyObject[], el: AnyObject) => {
+      const emKey = `${pluralize.singular(key)}${fks}`;
+      data = data.map((el: AnyObject) => {
         // eslint-disable-next-line no-underscore-dangle
-        el[_embed] = embedData
-          ? embedData.filter((eEl: AnyObject) => eEl[`${pluralize.singular(key)}Id`] === el.id)
-          : [];
-        acc.push(el);
-        return acc;
-      }, []);
+        el[_embed] = embedData.filter((emEl: AnyObject) => emEl[emKey] === el[idKey]);
+        return el;
+      });
     }
 
     // return data to user if exists (some filters can go crazy)
@@ -147,11 +157,28 @@ export const pluralRoute = async (f: FastifyInstance, key: string): Promise<void
 
   // Get single resource by Id
   f.get(`/${key}/:id`, async (request, reply) => {
-    // const { _embed, _expand } = request.query;
+    // user may want to expand or embed like in the listing, but it is simpler here
+    const { _expand } = request.query;
+    const paramId = parseInt(request.params.id, 10);
+
     const data = f.lowDb
       .get(key)
       .value()
-      .find((el: AnyObject) => el.id === parseInt(request.params.id, 10));
+      .find((el: AnyObject) => el.id === paramId);
+
+    if (_expand) {
+      // check allowed headers
+      const isAllowed = Object.keys(data).includes(`${_expand}Id`); // TODO: hardcoded "Id"
+      if (isAllowed) {
+        const expandData = f.lowDb
+          .get(pluralize(_expand))
+          .value()
+          .find((el: AnyObject) => el.id === data[`${_expand}Id`]); // TODO: you guessed it! "Id" key
+
+        // eslint-disable-next-line no-underscore-dangle
+        data[_expand] = expandData;
+      }
+    }
 
     if (data) {
       reply.send(data);

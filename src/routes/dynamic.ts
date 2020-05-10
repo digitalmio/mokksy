@@ -10,7 +10,7 @@ export default fp(async (f, opts, next) => {
     // define all plural routes
     if (_.isArray(value)) {
       console.log(`${key} is Array`);
-      return pluralRoute(f, key);
+      return pluralRoute(f, key, opts);
     }
 
     // singular routes

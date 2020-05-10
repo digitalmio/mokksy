@@ -12,6 +12,13 @@ interface MokksyConfig {
   noCors: boolean;
   noStatic: boolean;
   staticPath?: string;
+  idKey: string;
+  foreignKeySuffix: string;
+  noToken: boolean;
+  tokenSecret: string;
+  template?: string;
+  apiUrlPrefix: string;
+  filtering: string;
 }
 
 declare module 'fastify' {

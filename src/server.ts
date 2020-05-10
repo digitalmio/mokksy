@@ -14,19 +14,15 @@ import dynamicRoutes from './routes/dynamic';
 // types only
 import type { MokksyConfig } from '../types.d';
 
-export const server = async ({
-  filename,
-  port,
-  staticPath = 'public',
-  noStatic,
-  noCors,
-}: MokksyConfig): Promise<void> => {
+export const server = async (options: MokksyConfig): Promise<void> => {
   const app: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> = fastify({
     logger: {
       prettyPrint: true,
     },
     genReqId,
   });
+
+  const { filename, port, staticPath, noStatic, noCors } = options;
 
   // find port to run the app, this cannot be done via the FP
   const availablePort = await portFinder(port);
@@ -45,7 +41,7 @@ export const server = async ({
 
   // Serve static content
   // TODO: move to separate file as plugin
-  if (!noStatic) {
+  if (!noStatic && staticPath) {
     const staticFullPath = path.join(process.cwd(), staticPath);
 
     // check if folder exists, then register static
@@ -67,7 +63,7 @@ export const server = async ({
   });
 
   // routes
-  app.register(dynamicRoutes);
+  app.register(dynamicRoutes, options);
 
   // export startServer to be able to run it async
   const startServer = async (serverPort: number): Promise<void> => {
