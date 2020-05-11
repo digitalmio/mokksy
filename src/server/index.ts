@@ -69,7 +69,7 @@ export const server = async (options: MokksyConfig): Promise<void> => {
   // export startServer to be able to run it async
   const startServer = async (serverPort: number): Promise<void> => {
     try {
-      await app.listen(serverPort);
+      await app.listen(serverPort, options.host);
     } catch (err) {
       app.log.error(err);
       process.exit(1);
