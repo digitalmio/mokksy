@@ -14,8 +14,10 @@ interface MokksyConfig {
   staticPath?: string;
   idKey: string;
   foreignKeySuffix: string;
+  tokenEndpoint: string;
   noToken: boolean;
   tokenSecret: string;
+  tokenExpiry: number;
   template?: string;
   apiUrlPrefix: string;
   filtering: string;

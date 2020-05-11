@@ -11,6 +11,7 @@ import lowDB from './config/lowdb';
 import { genReqId } from './helpers/generateReqId';
 import { portFinder } from './helpers/portFinder';
 import dynamicRoutes from './routes/dynamic';
+import tokenRoutes from './routes/token';
 
 // local types only
 import type { MokksyConfig } from '../../types.d';
@@ -65,6 +66,7 @@ export const server = async (options: MokksyConfig): Promise<void> => {
 
   // routes
   app.register(dynamicRoutes, options);
+  app.register(tokenRoutes, options);
 
   // export startServer to be able to run it async
   const startServer = async (serverPort: number): Promise<void> => {

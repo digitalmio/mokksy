@@ -83,11 +83,24 @@ export const runCommandSpec = {
           type: 'boolean',
           default: false,
         },
+        tokenEndpoint: {
+          alias: 'te',
+          type: 'string',
+          description: 'URL for your app to process JWT token requests',
+          default: '/oauth/token',
+        },
         tokenSecret: {
           alias: 'ts',
           type: 'string',
-          description: 'Secret used to sign tokens on token endpoint',
+          description:
+            'Secret used to sign tokens on token endpoint. This password is VERY weak and should be used for testing purpuses only!',
           default: 'MoKKsy',
+        },
+        tokenExpiry: {
+          alias: 'tex',
+          type: 'number',
+          description: 'Time in seconds for JWT token to expire. 1 hour by default.',
+          default: 3600,
         },
         template: {
           alias: 't',
@@ -115,7 +128,9 @@ export const runCommandSpec = {
       'noCors',
       'filtering',
       'noToken',
+      'tokenEndpoint',
       'tokenSecret',
+      'tokenExpiry',
       'template',
     ]);
 
