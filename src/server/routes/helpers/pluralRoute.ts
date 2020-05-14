@@ -2,13 +2,14 @@ import { flatten, uniq, pick, orderBy, chunk, get } from 'lodash';
 import { FastifyInstance } from 'fastify';
 import pluralize from 'pluralize';
 import { objectKeysDeep } from '../../helpers/objectKeysDeep';
+import jwtVerify from './jwtVerify';
 import { PAGINATION_LIMT } from '../../config/consts';
-import type { AnyObject } from '../../../../types.d';
+import type { AnyObject, MokksyConfig } from '../../../../types.d';
 
 export const pluralRoute = async (
   f: FastifyInstance,
   key: string,
-  options: AnyObject
+  options: MokksyConfig
 ): Promise<void> => {
   // get data from user options
   const { filtering, foreignKeySuffix: fks, idKey } = options;
@@ -18,6 +19,9 @@ export const pluralRoute = async (
     // defined allowed query params deconstruct
     const { _start, _end, _page, _sort, _order, _limit, _embed, _expand } = request.query;
     const { hostname } = request;
+
+    // JWT check if route is protected
+    await jwtVerify(key, options.protectEndpoints, request, reply);
 
     // get data from the database
     let data = f.lowDb.get(key).value();
@@ -160,6 +164,9 @@ export const pluralRoute = async (
     // user may want to expand or embed like in the listing, but it is simpler here
     const { _expand, _embed } = request.query;
     const paramId = parseInt(request.params.id, 10);
+
+    // JWT check if route is protected
+    await jwtVerify(key, options.protectEndpoints, request, reply);
 
     const data = f.lowDb
       .get(key)

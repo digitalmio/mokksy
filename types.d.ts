@@ -18,6 +18,7 @@ interface MokksyConfig {
   noToken: boolean;
   tokenSecret: string;
   tokenExpiry: number;
+  protectEndpoints: string;
   template?: string;
   apiUrlPrefix: string;
   filtering: string;

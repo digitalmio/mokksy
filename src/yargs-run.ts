@@ -72,8 +72,8 @@ export const runCommandSpec = {
           alias: 'f',
           type: 'string',
           description: `Query params filtering type:
-                Inclusive (incl) - when element needs to match all filters.
-                Exclusive (excl) - when the element needs to match just one of the filters.`,
+            Inclusive (incl) - when element needs to match all filters.
+            Exclusive (excl) - when the element needs to match just one of the filters.`,
           choices: ['incl', 'excl'],
           default: 'incl',
         },
@@ -101,6 +101,13 @@ export const runCommandSpec = {
           type: 'number',
           description: 'Time in seconds for JWT token to expire. 1 hour by default.',
           default: 3600,
+        },
+        protectEndpoints: {
+          alias: 'pe',
+          type: 'string',
+          description: `Comma separated list of endpoints that needs to be protected by JWT token.
+            By default all endpoints are NOT protected.`,
+          default: '',
         },
         template: {
           alias: 't',
@@ -131,6 +138,7 @@ export const runCommandSpec = {
       'tokenEndpoint',
       'tokenSecret',
       'tokenExpiry',
+      'protectEndpoints',
       'template',
     ]);
 

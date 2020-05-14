@@ -1,14 +1,12 @@
-import njwt from 'njwt';
 import fp from 'fastify-plugin';
 
 export default fp(async (f, opts, next) => {
   if (!opts.noToken) {
     f.post(`${opts.tokenEndpoint}`, async (request) => {
-      const token = njwt.create(request.body, opts.tokenSecret);
-      token.setExpiration(new Date().getTime() + opts.tokenExpiry * 1000);
+      const token = f.jwt.sign(request.body, { expiresIn: opts.tokenExpiry });
 
       return {
-        access_token: token.compact(),
+        access_token: token,
         token_type: 'Bearer',
         expires_in: opts.tokenExpiry,
       };

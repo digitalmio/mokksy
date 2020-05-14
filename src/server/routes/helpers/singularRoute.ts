@@ -1,11 +1,12 @@
 import { FastifyInstance } from 'fastify';
 import pluralize from 'pluralize';
-import type { AnyObject } from '../../../../types.d';
+import jwtVerify from './jwtVerify';
+import type { AnyObject, MokksyConfig } from '../../../../types.d';
 
 export const singularRoute = async (
   f: FastifyInstance,
   key: string,
-  options: AnyObject
+  options: MokksyConfig
 ): Promise<void> => {
   // get data from user options
   const { foreignKeySuffix: fks, idKey } = options;
@@ -15,6 +16,10 @@ export const singularRoute = async (
     // user may want to expand data. Impossible to embed as no IDs
     const { _expand } = request.query;
 
+    // JWT check if route is protected
+    await jwtVerify(key, options.protectEndpoints, request, reply);
+
+    // query database
     const data = f.lowDb.get(key).value();
 
     if (_expand && !_expand.includes('.')) {

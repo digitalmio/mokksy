@@ -7,6 +7,7 @@ import fastify from 'fastify';
 import fastifyCors from 'fastify-cors';
 import fastifyFavicon from 'fastify-favicon';
 import fastifyStatic from 'fastify-static';
+import fastifyJwt from 'fastify-jwt';
 import lowDB from './config/lowdb';
 import { genReqId } from './helpers/generateReqId';
 import { portFinder } from './helpers/portFinder';
@@ -24,7 +25,7 @@ export const server = async (options: MokksyConfig): Promise<void> => {
     genReqId,
   });
 
-  const { sourceFile, port, staticPath, noStatic, noCors } = options;
+  const { sourceFile, port, staticPath, noStatic, noCors, noToken } = options;
 
   // find port to run the app, this cannot be done via the FP
   const availablePort = await portFinder(port);
@@ -39,6 +40,11 @@ export const server = async (options: MokksyConfig): Promise<void> => {
   // Disable CORS if, for some strange reason user dont want it. Useful with static hosting
   if (!noCors) {
     app.register(fastifyCors);
+  }
+
+  // register Fastify-JWT to sign and validate JWT Tokens
+  if (!noToken) {
+    app.register(fastifyJwt, { secret: options.tokenSecret });
   }
 
   // Serve static content
