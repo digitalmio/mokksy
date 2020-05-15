@@ -2,6 +2,7 @@ import { flatten, uniq, pick, orderBy, chunk, get } from 'lodash';
 import { FastifyInstance } from 'fastify';
 import pluralize from 'pluralize';
 import { objectKeysDeep } from '../../helpers/objectKeysDeep';
+import templateResponse from './templateResponse';
 import jwtVerify from './jwtVerify';
 import { PAGINATION_LIMT } from '../../config/consts';
 import type { AnyObject, MokksyConfig } from '../../../../types.d';
@@ -12,7 +13,7 @@ export const pluralRoute = async (
   options: MokksyConfig
 ): Promise<void> => {
   // get data from user options
-  const { filtering, foreignKeySuffix: fks, idKey } = options;
+  const { filtering, foreignKeySuffix: fks, idKey, template } = options;
 
   // Get all resources
   f.get(`/${key}`, async (request, reply) => {
@@ -156,7 +157,8 @@ export const pluralRoute = async (
     }
 
     // return data to user if exists (some filters can go crazy)
-    return data || [];
+    const returnData = data || [];
+    return template ? templateResponse(returnData, template, request) : returnData;
   });
 
   // Get single resource by Id
