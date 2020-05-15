@@ -8,46 +8,50 @@ export default (data: AnyObject, templatePath: string, req: FastifyRequest) => {
   // TODO: this is all happy path, make sure it will handle data nicely if user will provide
   // bad data, ie. path to directory
   if (templatePath !== '') {
-    // TODO: make sure tha path is a file, not directory
     const templateFileData = fs.readFileSync(templatePath, 'utf-8');
     if (templateFileData) {
       const template = JSON.parse(templateFileData);
 
       // template is parsed fine
-      // TODO: what if not?
       if (template) {
         const templateKeys = objectKeysDeep(template);
         return templateKeys.reduce((acc: AnyObject, el: string) => {
-          const val = get(template, el);
+          const templateVal = get(template, el);
+          let newVal: any;
 
-          // handle "data" - to display user data :)
-          if (val === '{{data}}') {
-            set(acc, el, data);
+          switch (templateVal) {
+            // data to replace actual key collection
+            case '{{data}}':
+              newVal = data;
+              break;
+
+            // to display number of items in collection
+            case '{{total}}':
+              newVal = data.length;
+              break;
+
+            // current date + time
+            case '{{dateTime}}':
+              newVal = new Date();
+              break;
+
+            // current timestamp
+            case '{{timestamp}}':
+              newVal = Math.floor(Date.now() / 1000);
+              break;
+
+            // echo current URL
+            case '{{url}}':
+              newVal = req.raw.url;
+              break;
+
+            // if not of above, just display template value
+            default:
+              newVal = templateVal;
+              break;
           }
 
-          // handle total
-          else if (val === '{{total}}') {
-            set(acc, el, data.length);
-          }
-
-          // handle date time
-          else if (val === '{{dateTime}}') {
-            set(acc, el, new Date());
-          }
-          // handle timestamp
-          else if (val === '{{timestamp}}') {
-            set(acc, el, Math.floor(Date.now() / 1000));
-          }
-          // handle URL
-          else if (val === '{{url}}') {
-            set(acc, el, req.raw.url);
-          }
-
-          // by default return value
-          else {
-            set(acc, el, val);
-          }
-
+          set(acc, el, newVal);
           return acc;
         }, {});
       }
