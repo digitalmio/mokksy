@@ -9,10 +9,10 @@ export const singularRoute = async (
   options: MokksyConfig
 ): Promise<void> => {
   // get data from user options
-  const { foreignKeySuffix: fks, idKey } = options;
+  const { foreignKeySuffix: fks, idKey, apiUrlPrefix: urlPrefix } = options;
 
   // Get resource
-  f.get(`/${key}`, async (request, reply) => {
+  f.get(`${urlPrefix}/${key}`, async (request, reply) => {
     // user may want to expand data. Impossible to embed as no IDs
     const { _expand } = request.query;
 

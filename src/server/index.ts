@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import assert from 'assert';
 
 import type { Server, IncomingMessage, ServerResponse } from 'http';
 
@@ -8,19 +9,29 @@ import fastifyCors from 'fastify-cors';
 import fastifyFavicon from 'fastify-favicon';
 import fastifyStatic from 'fastify-static';
 import fastifyJwt from 'fastify-jwt';
+import split from 'split2';
+import pump from 'pump';
+import { pick } from 'lodash';
+import { logger } from './logger';
 import lowDB from './config/lowdb';
 import { genReqId } from './helpers/generateReqId';
 import { portFinder } from './helpers/portFinder';
 import dynamicRoutes from './routes/dynamic';
 import tokenRoutes from './routes/token';
+import displayWelcome from './helpers/displayWelcome';
 
 // local types only
 import type { MokksyConfig } from '../../types.d';
 
+const log = split(logger);
+
 export const server = async (options: MokksyConfig): Promise<void> => {
   const app: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> = fastify({
     logger: {
-      prettyPrint: true,
+      stream: log,
+      serializers: {
+        res: (res: any) => pick(res, ['statusCode', 'url', 'method']),
+      },
     },
     genReqId,
   });
@@ -29,6 +40,9 @@ export const server = async (options: MokksyConfig): Promise<void> => {
 
   // find port to run the app, this cannot be done via the FP
   const availablePort = await portFinder(port);
+
+  // pretty logs pump to stdout
+  pump(log, process.stdout, assert.ifError);
 
   // import LowDB
   app.register(lowDB, { sourceFile });
@@ -65,9 +79,15 @@ export const server = async (options: MokksyConfig): Promise<void> => {
   }
 
   // Hooks: apppend short request ID header to every http response
-  app.addHook('onSend', async (request, reply, payload) => {
-    reply.header('request-id', request.id);
+  app.addHook('onSend', async (req, reply, payload) => {
+    reply.header('request-id', req.id);
     return payload;
+  });
+
+  // hack with any... sorry! but I need this info for logger
+  app.addHook('onRequest', async (req, reply: any) => {
+    reply.res.url = req.raw.url;
+    reply.res.method = req.raw.method;
   });
 
   // routes
@@ -77,6 +97,10 @@ export const server = async (options: MokksyConfig): Promise<void> => {
   // export startServer to be able to run it async
   const startServer = async (serverPort: number): Promise<void> => {
     try {
+      // display all available links in the console before starting server
+      displayWelcome(options, serverPort);
+
+      // ...and go!
       await app.listen(serverPort, options.host);
     } catch (err) {
       app.log.error(err);

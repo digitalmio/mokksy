@@ -13,10 +13,10 @@ export const pluralRoute = async (
   options: MokksyConfig
 ): Promise<void> => {
   // get data from user options
-  const { filtering, foreignKeySuffix: fks, idKey, template } = options;
+  const { filtering, foreignKeySuffix: fks, idKey, template, apiUrlPrefix: urlPrefix } = options;
 
   // Get all resources
-  f.get(`/${key}`, async (request, reply) => {
+  f.get(`${urlPrefix}/${key}`, async (request, reply) => {
     // defined allowed query params deconstruct
     const { _start, _end, _page, _sort, _order, _limit, _embed, _expand } = request.query;
     const { hostname } = request;
@@ -107,7 +107,7 @@ export const pluralRoute = async (
       };
       const linkHeader = Object.keys(linkHeaderData).map(
         (el) =>
-          `<http://${hostname}/${key}?_page=${linkHeaderData[el]}&_limit=${limit}>; rel="${el}"` // eslint-disable-line
+          `<http://${hostname}/${key}?_page=${linkHeaderData[el]}&_limit=${limit}>; rel="${el}"`
       );
       reply.header('Link', linkHeader.join(', '));
 
@@ -162,7 +162,7 @@ export const pluralRoute = async (
   });
 
   // Get single resource by Id
-  f.get(`/${key}/:id`, async (request, reply) => {
+  f.get(`${urlPrefix}/${key}/:id`, async (request, reply) => {
     // user may want to expand or embed like in the listing, but it is simpler here
     const { _expand, _embed } = request.query;
     const paramId = parseInt(request.params.id, 10);

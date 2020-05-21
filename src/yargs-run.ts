@@ -27,7 +27,7 @@ export const runCommandSpec = {
         },
         apiUrlPrefix: {
           alias: 'api',
-          description: `Prefix the URL path, ie. '/api' for '/api/posts'`,
+          description: `Prefix the URL path, ie. '/api' for '/api/posts'. Path must start with '/'`,
           type: 'string',
           default: '',
         },
@@ -46,7 +46,7 @@ export const runCommandSpec = {
         },
         watch: {
           alias: 'w',
-          description: 'Watch for changes on database file',
+          description: '(WIP) Watch for changes on database file',
           type: 'boolean',
           default: false,
         },
