@@ -36,7 +36,7 @@ export const server = async (options: MokksyConfig): Promise<void> => {
     genReqId,
   });
 
-  const { sourceFile, port, staticPath, noStatic, noCors, noToken, delay } = options;
+  const { sourceFile, port, staticPath, noStatic, noCors, noToken } = options;
 
   // find port to run the app, this cannot be done via the FP
   const availablePort = await portFinder(port);
