@@ -3,7 +3,7 @@ import fs from 'fs';
 import low from 'lowdb';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const FileSync = require('lowdb/adapters/FileSync');
+const Memory = require('lowdb/adapters/Memory');
 
 export default fp(async (server, { sourceFile }) => {
   // make sure that the file exists
@@ -12,9 +12,14 @@ export default fp(async (server, { sourceFile }) => {
     process.exit(0);
   }
 
-  // load working copy file
-  const adapter = new FileSync(sourceFile);
-  const handler = low(adapter);
+  // TODO: Give users option, maybe they want us to change the data file?
+  // For now all changes are in-memory only.
 
-  server.decorate('lowDb', handler);
+  // load working copy file to memory
+  const adapter = new Memory();
+  const db = await low(adapter);
+  const data = fs.readFileSync(sourceFile, 'utf-8');
+  db.defaults(JSON.parse(data)).write();
+
+  server.decorate('lowDb', db);
 });
