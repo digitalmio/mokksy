@@ -77,6 +77,12 @@ export const runCommandSpec = {
           choices: ['incl', 'excl'],
           default: 'incl',
         },
+        delay: {
+          alias: 'd',
+          type: 'number',
+          description: 'Add delay to responses (ms)',
+          default: 0,
+        },
         noToken: {
           alias: 'nt',
           description: 'Disable JWT token endpoint',
@@ -134,6 +140,7 @@ export const runCommandSpec = {
       'noStatic',
       'noCors',
       'filtering',
+      'delay',
       'noToken',
       'tokenEndpoint',
       'tokenSecret',

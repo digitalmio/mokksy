@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import pluralize from 'pluralize';
 import jwtVerify from './jwtVerify';
+import { wait } from '../../helpers/wait';
 import type { AnyObject, MokksyConfig } from '../../../../types.d';
 
 export const singularRoute = async (
@@ -9,10 +10,13 @@ export const singularRoute = async (
   options: MokksyConfig
 ): Promise<void> => {
   // get data from user options
-  const { foreignKeySuffix: fks, idKey, apiUrlPrefix: urlPrefix } = options;
+  const { foreignKeySuffix: fks, idKey, apiUrlPrefix: urlPrefix, delay } = options;
 
   // Get resource
   f.get(`${urlPrefix}/${key}`, async (request, reply) => {
+    // delay the response
+    await wait(delay);
+
     // user may want to expand data. Impossible to embed as no IDs
     const { _expand } = request.query;
 

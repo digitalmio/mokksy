@@ -22,6 +22,7 @@ interface MokksyConfig {
   template?: string;
   apiUrlPrefix: string;
   filtering: string;
+  delay: number;
 }
 
 declare module 'fastify' {

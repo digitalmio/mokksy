@@ -36,7 +36,7 @@ export const server = async (options: MokksyConfig): Promise<void> => {
     genReqId,
   });
 
-  const { sourceFile, port, staticPath, noStatic, noCors, noToken } = options;
+  const { sourceFile, port, staticPath, noStatic, noCors, noToken, delay } = options;
 
   // find port to run the app, this cannot be done via the FP
   const availablePort = await portFinder(port);
@@ -78,13 +78,14 @@ export const server = async (options: MokksyConfig): Promise<void> => {
     }
   }
 
-  // Hooks: apppend short request ID header to every http response
+  // Hooks:
+  // Append short request ID header to every http response
   app.addHook('onSend', async (req, reply, payload) => {
     reply.header('request-id', req.id);
     return payload;
   });
 
-  // hack with any... sorry! but I need this info for logger
+  // hack with "any" - sorry! but I need this info for logger
   app.addHook('onRequest', async (req, reply: any) => {
     reply.res.url = req.raw.url;
     reply.res.method = req.raw.method;

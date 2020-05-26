@@ -5,6 +5,7 @@ import { objectKeysDeep } from '../../helpers/objectKeysDeep';
 import templateResponse from './templateResponse';
 import jwtVerify from './jwtVerify';
 import { PAGINATION_LIMT } from '../../config/consts';
+import { wait } from '../../helpers/wait';
 import type { AnyObject, MokksyConfig } from '../../../../types.d';
 
 export const pluralRoute = async (
@@ -13,10 +14,20 @@ export const pluralRoute = async (
   options: MokksyConfig
 ): Promise<void> => {
   // get data from user options
-  const { filtering, foreignKeySuffix: fks, idKey, template, apiUrlPrefix: urlPrefix } = options;
+  const {
+    filtering,
+    foreignKeySuffix: fks,
+    idKey,
+    template,
+    apiUrlPrefix: urlPrefix,
+    delay,
+  } = options;
 
   // Get all resources
   f.get(`${urlPrefix}/${key}`, async (request, reply) => {
+    // delay the response
+    await wait(delay);
+
     // defined allowed query params deconstruct
     const { _start, _end, _page, _sort, _order, _limit, _embed, _expand } = request.query;
     const { hostname } = request;
@@ -163,6 +174,9 @@ export const pluralRoute = async (
 
   // Get single resource by Id
   f.get(`${urlPrefix}/${key}/:id`, async (request, reply) => {
+    // delay the response
+    await wait(delay);
+
     // user may want to expand or embed like in the listing, but it is simpler here
     const { _expand, _embed } = request.query;
     const paramId = parseInt(request.params.id, 10);
