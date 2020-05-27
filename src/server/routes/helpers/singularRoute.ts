@@ -47,8 +47,34 @@ export const singularRoute = async (
     }
   });
 
-  // Post
   // Put
+  f.put(`${urlPrefix}/${key}`, async (request, reply) => {
+    // delay the response
+    await wait(delay);
+
+    // JWT check if route is protected
+    await jwtVerify(key, options.protectEndpoints, request, reply);
+
+    // update database
+    const { body: data } = request;
+    f.lowDb.set(key, data).write();
+    reply.send(data);
+  });
+
   // Patch
-  // Delete
+  f.patch(`${urlPrefix}/${key}`, async (request, reply) => {
+    // delay the response
+    await wait(delay);
+
+    // JWT check if route is protected
+    await jwtVerify(key, options.protectEndpoints, request, reply);
+
+    // update database
+    const currentData = f.lowDb.get(key).value();
+    const { body: data } = request;
+    f.lowDb.set(key, Object.assign(currentData, data)).write();
+
+    const updatedData = f.lowDb.get(key).value();
+    reply.send(updatedData);
+  });
 };
