@@ -16,6 +16,9 @@ const emojiLog: AnyObject = {
   40: ' ⚠️ ',
   50: ' 🚨 ',
   60: ' 💀 ',
+
+  // custom
+  35: ' 💾 ', // while saving snapshot
 };
 
 const formatDate = (): string => {

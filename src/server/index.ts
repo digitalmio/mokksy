@@ -20,6 +20,7 @@ import dynamicRoutes from './routes/dynamic';
 import tokenRoutes from './routes/token';
 import redirectRoutes from './routes/routesRedirect';
 import displayWelcome from './helpers/displayWelcome';
+import writeSnapshot from './plugins/writeSnapshot';
 
 // local types only
 import type { MokksyConfig } from '../../types.d';
@@ -32,6 +33,9 @@ export const server = async (options: MokksyConfig): Promise<void> => {
       stream: log,
       serializers: {
         res: (res: any) => pick(res, ['statusCode', 'url', 'method']),
+      },
+      customLevels: {
+        save: 35,
       },
     },
     genReqId,
@@ -87,15 +91,20 @@ export const server = async (options: MokksyConfig): Promise<void> => {
   });
 
   // hack with "any" - sorry! but I need this info for logger
+  // as reply type is hidden quite deep in node type
   app.addHook('onRequest', async (req, reply: any) => {
     reply.res.url = req.raw.url;
     reply.res.method = req.raw.method;
   });
 
   // routes
-  app.register(dynamicRoutes, options);
-  app.register(tokenRoutes, options);
-  app.register(redirectRoutes, { ...options, availablePort: availablePort.port });
+  const optsWithPort = { ...options, availablePort: availablePort.port };
+  app.register(dynamicRoutes, optsWithPort);
+  app.register(tokenRoutes, optsWithPort);
+  app.register(redirectRoutes, optsWithPort);
+
+  // add users option to write the database snapshot
+  app.register(writeSnapshot, optsWithPort);
 
   // export startServer to be able to run it async
   const startServer = async (serverPort: number): Promise<void> => {
@@ -110,15 +119,6 @@ export const server = async (options: MokksyConfig): Promise<void> => {
       process.exit(1);
     }
   };
-
-  // TODO: add as plugin!
-  // listen to newlines, to save snapshots
-  process.stdin.setEncoding('utf8');
-  process.stdin.on('data', (chunk: string) => {
-    if (chunk.trim().toLowerCase() === 's') {
-      console.log(`Pressed 's'. Cool. Let's save some data.`);
-    }
-  });
 
   startServer(availablePort.port);
 };

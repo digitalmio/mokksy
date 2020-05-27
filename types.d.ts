@@ -24,10 +24,17 @@ interface MokksyConfig {
   filtering: string;
   delay: number;
   redirect?: string;
+
+  // this can/will be added later, if user port is in use
+  availablePort?: number;
 }
 
 declare module 'fastify' {
   interface FastifyInstance {
     lowDb: Lowdb.LowdbSync<any[]>;
+  }
+
+  interface Logger {
+    save(msg: string): void;
   }
 }
