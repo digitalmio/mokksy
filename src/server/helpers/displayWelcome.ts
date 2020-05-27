@@ -16,7 +16,7 @@ export default (options: MokksyConfig, availablePort: number) => {
   }
 
   if (!options.noToken) {
-    chunks.push(chalk.yellow.bold('Token endpoint', chalk.gray('(POST only)')));
+    chunks.push(chalk.yellow.bold('Token Endpoint', chalk.gray('(POST only)')));
     chunks.push(chalk.white(`http://${options.host}:${availablePort}${options.tokenEndpoint}`));
     chunks.push('');
   }
