@@ -24,5 +24,6 @@ export default (options: MokksyConfig, availablePort: number) => {
   // actual links will be rendered by /routes/dynamic.ts file
   chunks.push(chalk.yellow.bold('Resources'));
 
+  console.clear();
   console.log(chunks.join('\n'));
 };
