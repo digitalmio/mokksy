@@ -31,6 +31,13 @@ export const runCommandSpec = {
           type: 'string',
           default: '',
         },
+        routes: {
+          alias: 'r',
+          description:
+            'List of custom routes as JSON key:value. On request of the key route you will be redirected to value.',
+          type: 'string',
+          default: '',
+        },
         idKey: {
           alias: 'i',
           description: `Set database 'ID' key (ie. '_id' for Mongo-like collections)`,
@@ -133,6 +140,7 @@ export const runCommandSpec = {
       'port',
       'host',
       'apiUrlPrefix',
+      'routes',
       'idKey',
       'foreignKeySuffix',
       'watch',

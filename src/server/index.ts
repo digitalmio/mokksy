@@ -18,6 +18,7 @@ import { genReqId } from './helpers/generateReqId';
 import { portFinder } from './helpers/portFinder';
 import dynamicRoutes from './routes/dynamic';
 import tokenRoutes from './routes/token';
+import redirectRoutes from './routes/routesRedirect';
 import displayWelcome from './helpers/displayWelcome';
 
 // local types only
@@ -94,6 +95,7 @@ export const server = async (options: MokksyConfig): Promise<void> => {
   // routes
   app.register(dynamicRoutes, options);
   app.register(tokenRoutes, options);
+  app.register(redirectRoutes, { ...options, availablePort: availablePort.port });
 
   // export startServer to be able to run it async
   const startServer = async (serverPort: number): Promise<void> => {
@@ -109,6 +111,7 @@ export const server = async (options: MokksyConfig): Promise<void> => {
     }
   };
 
+  // TODO: add as plugin!
   // listen to newlines, to save snapshots
   process.stdin.setEncoding('utf8');
   process.stdin.on('data', (chunk: string) => {

@@ -44,8 +44,8 @@ export default fp(async (f, opts, next) => {
     }
   });
 
-  // put spacing after recources list
-  console.log('\n');
+  // empty line after listing resources
+  console.log('');
 
   next();
 });
