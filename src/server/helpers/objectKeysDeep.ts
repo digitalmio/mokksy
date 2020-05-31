@@ -1,4 +1,4 @@
-import type { AnyObject } from '../../types.d';
+import type { AnyObject } from '../../../types.d';
 
 export const objectKeysDeep = (obj: AnyObject): string[] =>
   Object.keys(obj)
