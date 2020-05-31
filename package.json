@@ -1,5 +1,5 @@
 {
-  "name": "mksy",
+  "name": "mokksy",
   "version": "0.0.1",
   "bin": "./dist/index.js",
   "license": "MIT",
