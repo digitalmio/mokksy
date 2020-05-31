@@ -3,9 +3,22 @@
   "version": "0.0.1",
   "bin": "./dist/index.js",
   "license": "MIT",
+  "repository": "https://github.com/digitalmio/mokksy",
+  "author": "Maciej Ziehlke <mac@dmio.co>",
   "engines": {
     "node": ">=10"
   },
+  "keywords": [
+    "JSON",
+    "server",
+    "API",
+    "mock",
+    "fake",
+    "REST",
+    "JWT",
+    "testing",
+    "dummy"
+  ],
   "scripts": {
     "dev": "ts-node-dev --files src/index.ts",
     "test": "jest --coverage",
