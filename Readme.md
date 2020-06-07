@@ -41,7 +41,6 @@ Options:
   --foreignKeySuffix, --fks  Set foreign key suffix.
                              Ie. '_id' for keys like 'user_id', 'post_id', etc.
                              Default is 'Id' for keys like 'userId', 'postId', etc.  [default: "Id"]
-  --watch, -w                (WIP) Watch for changes on database file     [boolean] [default: false]
   --staticPath, -s           Set static files directory                 [string] [default: "public"]
   --noStatic, --ns           Disable static file server                   [boolean] [default: false]
   --noCors, --nc             Disable Cross-Origin Resource Sharing        [boolean] [default: false]
