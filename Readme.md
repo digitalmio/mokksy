@@ -14,12 +14,41 @@ Sometimes, depending on your OS, you _might_ need to install package as root/Adm
 
 If you don't want to install Mokksy globally, you can install it locally as a Dev dependency: `npm install --save-dev mokksy` or `yarn add -D mokksy`. Then please add a `script` in your `package.json` section, ie: `mokksy: mokksy`. This way you will have access to Mokksy via: `npm run mokksy` or `yarn run mokksy`.
 
-## Starting the server
+## Getting started, aka. prepaging the database file
+
+After installing the server, you need to create a `db.json` database file (you can call it whatever you like), something like:
+
+```
+{
+  "posts: [
+    {"id": 1, "title": "This is my first post"}
+  ],
+  "comments": [
+    {"id": 1, "postId": 1, "body": "This is the very cool first comment"}
+  ],
+  "profile": {
+    "name": "My Name", "location": "Earth"
+  }
+}
+```
+
+...now you are ready to start the server.
+
+## Starting simple server
 
 At the moment Mokksy supports just one command: `run`.
-To check available options you can run `mokksy run --help`.
 
-This should print list of available options:
+```
+mokksy run db.json
+```
+
+This command will run simple server. Mokksy will try to run on port 5000. If this port will be used by other app, Mokksy will find other free port.
+You will see all available endpoints printed in the terminal, like in the screenshot at the top of this Readme.
+
+## Customise the server
+
+To check available options, to customise your server, run `mokksy run --help`.
+This will print list of available options:
 
 ```
 mokksy run [options] <sourceFile>
@@ -66,3 +95,12 @@ Options:
 Examples:
   mokksy run --nc -p 8080 db.json  Run 'db.json' database on port 8080 and disable CORS.
 ```
+
+## Static file server
+
+Mokksy can be also used as a static file server. How? Simply create `public` folder and run Mokksy from that directory.
+Alternatively, use `-s` switch to set different folder for static files directory.
+
+## CORS
+
+Cross Origin Resource Sharing is enabled by default. It can be disabled using `--nc`.
