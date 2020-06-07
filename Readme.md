@@ -2,7 +2,10 @@
 
 ## Fully functional mock JSON server with great extras
 
-This project is work in progress. Feel free to play with it, use for testing or local development, but do not use it on production.
+This project is work in progress. Feel free to play with it, use for testing or local development, but do not use it on production. Wait for at least 0.1.0 version.
+
+Mokksy is heavily ispired by the [JSON-Server](https://github.com/typicode/json-server).
+I started working on it during the late evenings during the global lockdown in 2020 as a "pet" project to tinker with the CLI and play with Typescript.
 
 ![Mokksy console screenshot](https://github.com/digitalmio/mokksy/raw/master/docs/ss.png 'Mokksy')
 
@@ -94,6 +97,42 @@ Options:
 
 Examples:
   mokksy run --nc -p 8080 db.json  Run 'db.json' database on port 8080 and disable CORS.
+```
+
+## Token protection and Token endpoint
+
+You can protect the keys from unauthorised access. To do so, please provide the comma-separated list of keys, ie:
+
+```
+mokksy run db.json --pe posts,comments
+```
+
+will protect all requests to `posts` and `comments` endpoints (get, post, put, delete). You will see 401 error whrn you will try to access `http://localhost:5000/posts` without the token.
+
+### How to get the token?
+
+Token endpoint is available by default at `http://localhost:5000/oauth/token`, but you can customise it.
+As Mokksy is a mock solution, our implementation of the server is very simple. JWT tokens are signed using string ('MoKKsy' by default, customisable using `--ts` switch).
+To get new token, send data payload as POST request to token endpoint (as JSON), and whole request body will become payload of the JWT token.
+
+```
+curl -X "POST" "http://localhost:5000/oauth/token" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -d $'{
+  "email": "me@example.com",
+  "userId": "1"
+}'
+```
+
+Token is valid 3600 seconds === 1hour.
+
+### How to access the protected resources?
+
+Like in the normal API, add the `Authorization` header with the Bearer token.
+
+```
+curl "http://localhost:5000/posts" \
+     -H 'Authorization: Bearer {{your-token-goes-here}}'
 ```
 
 ## Static file server

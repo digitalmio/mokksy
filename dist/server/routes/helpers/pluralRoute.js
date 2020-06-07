@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.pluralRoute = void 0;
 const lodash_1 = require("lodash");
 const pluralize_1 = __importDefault(require("pluralize"));
+const nanoid_1 = require("nanoid");
 const objectKeysDeep_1 = require("../../helpers/objectKeysDeep");
 const templateResponse_1 = __importDefault(require("./templateResponse"));
 const jwtVerify_1 = __importDefault(require("./jwtVerify"));
@@ -23,7 +24,9 @@ const wait_1 = require("../../helpers/wait");
 exports.pluralRoute = (f, key, options) => __awaiter(void 0, void 0, void 0, function* () {
     // get data from user options
     const { filtering, foreignKeySuffix: fks, idKey, template, apiUrlPrefix: urlPrefix, delay, } = options;
-    // Get all resources
+    // -----------------------------------------------------------------------------------------------
+    // - Get all resources
+    // -----------------------------------------------------------------------------------------------
     f.get(`${urlPrefix}/${key}`, (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
         // delay the response
         yield wait_1.wait(delay);
@@ -126,7 +129,7 @@ exports.pluralRoute = (f, key, options) => __awaiter(void 0, void 0, void 0, fun
                 const expandData = f.lowDb.get(pluralize_1.default(_expand)).value() || [];
                 data = data.map((el) => {
                     // eslint-disable-next-line no-underscore-dangle
-                    el[_expand] = expandData.find((exEl) => el[idKey] === exEl[`${_expand}${fks}`]);
+                    el[_expand] = expandData.find((exEl) => el[`${_expand}${fks}`] === exEl[idKey]);
                     return el;
                 });
             }
@@ -144,27 +147,31 @@ exports.pluralRoute = (f, key, options) => __awaiter(void 0, void 0, void 0, fun
         const returnData = data || [];
         return template ? templateResponse_1.default(returnData, template, request) : returnData;
     }));
-    // Get single resource by Id
+    // -----------------------------------------------------------------------------------------------
+    // - Get single resource by Id
+    // -----------------------------------------------------------------------------------------------
     f.get(`${urlPrefix}/${key}/:id`, (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
         // delay the response
         yield wait_1.wait(delay);
         // user may want to expand or embed like in the listing, but it is simpler here
         const { _expand, _embed } = request.query;
-        const paramId = parseInt(request.params.id, 10);
+        const paramId = request.params.id;
         // JWT check if route is protected
         yield jwtVerify_1.default(key, options.protectEndpoints, request, reply);
         const data = f.lowDb
             .get(key)
-            .value()
-            .find((el) => el[idKey] === paramId);
+            // user can use whatever he like for param id, fastify is treating params as strings
+            // eslint-disable-next-line eqeqeq
+            .find((el) => el[idKey] == paramId)
+            .value();
         if (_expand && !_expand.includes('.')) {
             // check allowed headers
             const isAllowed = Object.keys(data).includes(`${_expand}${fks}`);
             if (isAllowed) {
                 const expandData = f.lowDb
                     .get(pluralize_1.default(_expand))
-                    .value()
-                    .find((el) => el[idKey] === data[`${_expand}${fks}`]);
+                    .find((el) => el[idKey] === data[`${_expand}${fks}`])
+                    .value();
                 // eslint-disable-next-line no-underscore-dangle
                 data[_expand] = expandData;
             }
@@ -173,8 +180,8 @@ exports.pluralRoute = (f, key, options) => __awaiter(void 0, void 0, void 0, fun
             const emKey = `${pluralize_1.default.singular(key)}${fks}`;
             const embedData = f.lowDb
                 .get(_embed)
-                .value()
-                .filter((emEl) => emEl[emKey] === data[idKey]);
+                .filter((emEl) => emEl[emKey] === data[idKey])
+                .value();
             // eslint-disable-next-line no-underscore-dangle
             data[_expand] = embedData;
         }
@@ -185,8 +192,69 @@ exports.pluralRoute = (f, key, options) => __awaiter(void 0, void 0, void 0, fun
             reply.status(404).send({}); // empty response with 404 when item not found
         }
     }));
-    // Post
-    // Put
-    // Patch
-    // Delete
+    // -----------------------------------------------------------------------------------------------
+    // - Post, create new resource
+    // -----------------------------------------------------------------------------------------------
+    f.post(`${urlPrefix}/${key}`, (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
+        // delay the response
+        yield wait_1.wait(delay);
+        // JWT check if route is protected
+        yield jwtVerify_1.default(key, options.protectEndpoints, request, reply);
+        // get user post data
+        const { body: data } = request;
+        // Check if no ID and create one using NanoID
+        if (!data[idKey]) {
+            data[idKey] = nanoid_1.nanoid();
+        }
+        // save new element to database
+        f.lowDb.get(key).push(data).write();
+        reply.status(201).send(data);
+    }));
+    // -----------------------------------------------------------------------------------------------
+    // Put + Patch - update current resource
+    // -----------------------------------------------------------------------------------------------
+    const update = (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
+        // delay the response
+        yield wait_1.wait(delay);
+        // JWT check if route is protected
+        yield jwtVerify_1.default(key, options.protectEndpoints, request, reply);
+        // update database
+        const { body: data } = request;
+        const paramId = request.params.id;
+        const reqMethod = request.raw.method || 'PUT';
+        const dbTable = f.lowDb.get(key);
+        // get current data
+        // eslint-disable-next-line eqeqeq
+        const currentData = dbTable.find((el) => el[idKey] == paramId);
+        const currentDataValues = currentData.value();
+        // Prepare values for 'PUT' method prepare clean object, delete old keys
+        const oldKeys = Object.keys(currentDataValues);
+        const emptyOb = oldKeys.reduce((acc, el) => {
+            acc[el] = undefined;
+            return acc;
+        }, {});
+        const newValuesPut = Object.assign(Object.assign(Object.assign({}, emptyOb), { [idKey]: currentDataValues[idKey] }), data);
+        const result = currentData.assign(reqMethod === 'PUT' ? newValuesPut : data).write();
+        reply.send(result);
+    });
+    f.put(`${urlPrefix}/${key}/:id`, update);
+    f.patch(`${urlPrefix}/${key}/:id`, update);
+    // -----------------------------------------------------------------------------------------------
+    // - Delete resource
+    // -----------------------------------------------------------------------------------------------
+    f.delete(`${urlPrefix}/${key}/:id`, (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
+        // delay the response
+        yield wait_1.wait(delay);
+        // Param from the URL
+        const paramId = request.params.id;
+        // JWT check if route is protected
+        yield jwtVerify_1.default(key, options.protectEndpoints, request, reply);
+        // save new element to database
+        f.lowDb
+            .get(key)
+            // eslint-disable-next-line eqeqeq
+            .remove((el) => el[idKey] == paramId)
+            .write();
+        reply.send({});
+    }));
 });

@@ -19,7 +19,9 @@ const wait_1 = require("../../helpers/wait");
 exports.singularRoute = (f, key, options) => __awaiter(void 0, void 0, void 0, function* () {
     // get data from user options
     const { foreignKeySuffix: fks, idKey, apiUrlPrefix: urlPrefix, delay } = options;
+    // -----------------------------------------------------------------------------------------------
     // Get resource
+    // -----------------------------------------------------------------------------------------------
     f.get(`${urlPrefix}/${key}`, (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
         // delay the response
         yield wait_1.wait(delay);
@@ -48,7 +50,9 @@ exports.singularRoute = (f, key, options) => __awaiter(void 0, void 0, void 0, f
             reply.status(404).send({}); // empty response with 404 when item not found
         }
     }));
-    // Put
+    // -----------------------------------------------------------------------------------------------
+    // Put - update
+    // -----------------------------------------------------------------------------------------------
     f.put(`${urlPrefix}/${key}`, (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
         // delay the response
         yield wait_1.wait(delay);
@@ -59,7 +63,9 @@ exports.singularRoute = (f, key, options) => __awaiter(void 0, void 0, void 0, f
         f.lowDb.set(key, data).write();
         reply.send(data);
     }));
-    // Patch
+    // -----------------------------------------------------------------------------------------------
+    // Patch - update current resource
+    // -----------------------------------------------------------------------------------------------
     f.patch(`${urlPrefix}/${key}`, (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
         // delay the response
         yield wait_1.wait(delay);
