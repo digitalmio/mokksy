@@ -18,6 +18,8 @@ export default fp(async (server, { sourceFile }) => {
   // load working copy file to memory
   const adapter = new Memory();
   const db = await low(adapter);
+
+  // load defaults to our database
   const data = fs.readFileSync(sourceFile, 'utf-8');
   db.defaults(JSON.parse(data)).write();
 

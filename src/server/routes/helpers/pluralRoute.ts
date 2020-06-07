@@ -1,6 +1,8 @@
 import { flatten, uniq, pick, orderBy, chunk, get } from 'lodash';
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import pluralize from 'pluralize';
+import { nanoid } from 'nanoid';
+import type { ServerResponse } from 'http';
 import { objectKeysDeep } from '../../helpers/objectKeysDeep';
 import templateResponse from './templateResponse';
 import jwtVerify from './jwtVerify';
@@ -23,7 +25,9 @@ export const pluralRoute = async (
     delay,
   } = options;
 
-  // Get all resources
+  // -----------------------------------------------------------------------------------------------
+  // - Get all resources
+  // -----------------------------------------------------------------------------------------------
   f.get(`${urlPrefix}/${key}`, async (request, reply) => {
     // delay the response
     await wait(delay);
@@ -150,7 +154,7 @@ export const pluralRoute = async (
         data = data.map((el: AnyObject) => {
           // eslint-disable-next-line no-underscore-dangle
           el[_expand] = expandData.find(
-            (exEl: AnyObject) => el[idKey] === exEl[`${_expand}${fks}`]
+            (exEl: AnyObject) => el[`${_expand}${fks}`] === exEl[idKey]
           );
           return el;
         });
@@ -172,22 +176,26 @@ export const pluralRoute = async (
     return template ? templateResponse(returnData, template, request) : returnData;
   });
 
-  // Get single resource by Id
+  // -----------------------------------------------------------------------------------------------
+  // - Get single resource by Id
+  // -----------------------------------------------------------------------------------------------
   f.get(`${urlPrefix}/${key}/:id`, async (request, reply) => {
     // delay the response
     await wait(delay);
 
     // user may want to expand or embed like in the listing, but it is simpler here
     const { _expand, _embed } = request.query;
-    const paramId = parseInt(request.params.id, 10);
+    const paramId = request.params.id;
 
     // JWT check if route is protected
     await jwtVerify(key, options.protectEndpoints, request, reply);
 
     const data = f.lowDb
       .get(key)
-      .value()
-      .find((el: AnyObject) => el[idKey] === paramId);
+      // user can use whatever he like for param id, fastify is treating params as strings
+      // eslint-disable-next-line eqeqeq
+      .find((el: AnyObject) => el[idKey] == paramId)
+      .value();
 
     if (_expand && !_expand.includes('.')) {
       // check allowed headers
@@ -195,8 +203,8 @@ export const pluralRoute = async (
       if (isAllowed) {
         const expandData = f.lowDb
           .get(pluralize(_expand))
-          .value()
-          .find((el: AnyObject) => el[idKey] === data[`${_expand}${fks}`]);
+          .find((el: AnyObject) => el[idKey] === data[`${_expand}${fks}`])
+          .value();
 
         // eslint-disable-next-line no-underscore-dangle
         data[_expand] = expandData;
@@ -207,8 +215,8 @@ export const pluralRoute = async (
       const emKey = `${pluralize.singular(key)}${fks}`;
       const embedData = f.lowDb
         .get(_embed)
-        .value()
-        .filter((emEl: AnyObject) => emEl[emKey] === data[idKey]);
+        .filter((emEl: AnyObject) => emEl[emKey] === data[idKey])
+        .value();
 
       // eslint-disable-next-line no-underscore-dangle
       data[_expand] = embedData;
@@ -221,8 +229,91 @@ export const pluralRoute = async (
     }
   });
 
-  // Post
-  // Put
-  // Patch
-  // Delete
+  // -----------------------------------------------------------------------------------------------
+  // - Post, create new resource
+  // -----------------------------------------------------------------------------------------------
+  f.post(`${urlPrefix}/${key}`, async (request, reply) => {
+    // delay the response
+    await wait(delay);
+
+    // JWT check if route is protected
+    await jwtVerify(key, options.protectEndpoints, request, reply);
+
+    // get user post data
+    const { body: data } = request;
+
+    // Check if no ID and create one using NanoID
+    if (!data[idKey]) {
+      data[idKey] = nanoid();
+    }
+
+    // save new element to database
+    f.lowDb.get(key).push(data).write();
+    reply.status(201).send(data);
+  });
+
+  // -----------------------------------------------------------------------------------------------
+  // Put + Patch - update current resource
+  // -----------------------------------------------------------------------------------------------
+  const update = async (request: FastifyRequest, reply: FastifyReply<ServerResponse>) => {
+    // delay the response
+    await wait(delay);
+
+    // JWT check if route is protected
+    await jwtVerify(key, options.protectEndpoints, request, reply);
+
+    // update database
+    const { body: data } = request;
+    const paramId = request.params.id;
+    const reqMethod = request.raw.method || 'PUT';
+
+    const dbTable = f.lowDb.get(key);
+
+    // get current data
+    // eslint-disable-next-line eqeqeq
+    const currentData = dbTable.find((el: AnyObject) => el[idKey] == paramId);
+    const currentDataValues = currentData.value();
+
+    // Prepare values for 'PUT' method prepare clean object, delete old keys
+    const oldKeys = Object.keys(currentDataValues);
+    const emptyOb = oldKeys.reduce((acc: AnyObject, el: string) => {
+      acc[el] = undefined;
+      return acc;
+    }, {});
+    const newValuesPut = {
+      ...emptyOb,
+      [idKey]: currentDataValues[idKey],
+      ...data,
+    };
+
+    const result = currentData.assign(reqMethod === 'PUT' ? newValuesPut : data).write();
+
+    reply.send(result);
+  };
+
+  f.put(`${urlPrefix}/${key}/:id`, update);
+  f.patch(`${urlPrefix}/${key}/:id`, update);
+
+  // -----------------------------------------------------------------------------------------------
+  // - Delete resource
+  // -----------------------------------------------------------------------------------------------
+  f.delete(`${urlPrefix}/${key}/:id`, async (request, reply) => {
+    // delay the response
+    await wait(delay);
+
+    // Param from the URL
+    const paramId = request.params.id;
+
+    // JWT check if route is protected
+    await jwtVerify(key, options.protectEndpoints, request, reply);
+
+    // save new element to database
+    f.lowDb
+      .get(key)
+      // eslint-disable-next-line eqeqeq
+      .remove((el: AnyObject) => el[idKey] == paramId)
+      .write();
+
+    reply.send({});
+  });
 };

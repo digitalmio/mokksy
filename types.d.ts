@@ -31,7 +31,8 @@ interface MokksyConfig {
 
 declare module 'fastify' {
   interface FastifyInstance {
-    lowDb: Lowdb.LowdbSync<any[]>;
+    // lowDb: Lowdb.LowdbSync<any[]>;
+    lowDb: any;
   }
 
   interface Logger {

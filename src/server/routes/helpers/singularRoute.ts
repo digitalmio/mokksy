@@ -12,7 +12,9 @@ export const singularRoute = async (
   // get data from user options
   const { foreignKeySuffix: fks, idKey, apiUrlPrefix: urlPrefix, delay } = options;
 
+  // -----------------------------------------------------------------------------------------------
   // Get resource
+  // -----------------------------------------------------------------------------------------------
   f.get(`${urlPrefix}/${key}`, async (request, reply) => {
     // delay the response
     await wait(delay);
@@ -47,7 +49,9 @@ export const singularRoute = async (
     }
   });
 
-  // Put
+  // -----------------------------------------------------------------------------------------------
+  // Put - update
+  // -----------------------------------------------------------------------------------------------
   f.put(`${urlPrefix}/${key}`, async (request, reply) => {
     // delay the response
     await wait(delay);
@@ -61,7 +65,9 @@ export const singularRoute = async (
     reply.send(data);
   });
 
-  // Patch
+  // -----------------------------------------------------------------------------------------------
+  // Patch - update current resource
+  // -----------------------------------------------------------------------------------------------
   f.patch(`${urlPrefix}/${key}`, async (request, reply) => {
     // delay the response
     await wait(delay);
