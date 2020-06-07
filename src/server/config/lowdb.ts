@@ -1,6 +1,7 @@
 import fp from 'fastify-plugin';
 import fs from 'fs';
 import low from 'lowdb';
+import chalk from 'chalk';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Memory = require('lowdb/adapters/Memory');
@@ -8,7 +9,9 @@ const Memory = require('lowdb/adapters/Memory');
 export default fp(async (server, { sourceFile }) => {
   // make sure that the file exists
   if (!fs.existsSync(sourceFile)) {
-    console.log(`Oops, the database file '${sourceFile}' doesn't exist. Bye!`);
+    console.log('\n');
+    console.log(chalk.bold.red(`Oops, the database file '${sourceFile}' doesn't exist. Bye!`));
+    console.log('\n');
     process.exit(0);
   }
 
