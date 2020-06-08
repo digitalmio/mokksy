@@ -5,7 +5,7 @@
 This project is work in progress. Feel free to play with it, use for testing or local development, but do not use it on production. Wait for at least 0.1.0 version.
 
 Mokksy is heavily ispired by the [JSON-Server](https://github.com/typicode/json-server).
-I started working on it during the late evenings during the global lockdown in 2020 as a "pet" project to tinker with the CLI and play with Typescript.
+I started working on it during the late evenings during the global lockdown in 2020 as a "pet" project to tinker with the CLI and play with Typescript. Mokksy is build on [Fastify](https://fastify.io).
 
 ![Mokksy console screenshot](https://github.com/digitalmio/mokksy/raw/master/docs/ss.png 'Mokksy')
 
@@ -46,7 +46,7 @@ After installing the server, you need to create a `db.json` database file (you c
 }
 ```
 
-...now you are ready to start the server.
+Alternatively, if your database file is publicly available on the internet (maybe you are sharing it with your work colleagues) you can use the URL instead of file path.
 
 ## Starting simple server
 
@@ -54,10 +54,15 @@ At the moment Mokksy supports just one command: `run`.
 
 ```
 mokksy run db.json
+mokksy run https://example.com/path/to/your/database.json
 ```
 
 This command will run simple server. Mokksy will try to run on port 5000. If this port will be used by other app, Mokksy will find other free port.
 You will see all available endpoints printed in the terminal, like in the screenshot at the top of this Readme.
+
+## API prefixing
+
+By default API routes are not prefixed, but you can use `--api` switch to provide the prefix, ie `/api` to get `/api/posts` instead of simple `/posts`. Please remember that prefix needs to start with `/`.
 
 ## Customise the server
 
@@ -110,6 +115,12 @@ Examples:
   mokksy run --nc -p 8080 db.json  Run 'db.json' database on port 8080 and disable CORS.
 ```
 
+## Database snapshot
+
+To save database snapshot press `s` and then `Enter` any time, when server is running. This will save database snapshot to your current directory. Files are named `mksy-{current-timestamp}.json`.
+
+To view current database snapshot, simply go to `/_db`.
+
 ## Data filtering, sorting and pagination
 
 You can use query params to filter, search or paginate the data. We are compatible with JSON-server.
@@ -142,6 +153,20 @@ Use special query param `_page` and optional `_limit`. Links to the next pages w
 ### Slicing
 
 Use special query param `_start`, `_end` or `_limit`. Total count will be available in the `X-Total-Count` response header.
+
+## Expanding and embeding, aka relationships
+
+To include child resources in the response, use special query param `_embed`
+
+```
+GET /posts?_embed=comments
+```
+
+To display parent resource in child, add `_expand` query param in the URL
+
+```
+GET /comments?_expand=post
+```
 
 ## Display templates
 
@@ -234,7 +259,18 @@ curl "http://localhost:5000/posts" \
 
 Mokksy can be also used as a static file server. How? Simply create `public` folder and run Mokksy from that directory.
 Alternatively, use `-s` switch to set different folder for static files directory.
+Static file server is always mapping files to root path `/`.
 
 ## CORS
 
 Cross Origin Resource Sharing is enabled by default. It can be disabled using `--nc`.
+
+## Custom routes
+
+You can provide the list of custom routes in the file, in JSON format where key is the final URL and value is the URL where we should redirect your request to.
+
+```
+mokksy run db.json -r routes.json
+```
+
+At the moment this is super simple, static solution. If you need something more dynamic, let me know what's your use case.

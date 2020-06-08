@@ -15,6 +15,10 @@ export default (options: MokksyConfig, availablePort: number) => {
     chunks.push('');
   }
 
+  chunks.push(chalk.yellow.bold('Database snapshot', chalk.gray('(response might be very big)')));
+  chunks.push(chalk.white(`http://${options.host}:${availablePort}/_db`));
+  chunks.push('');
+
   if (!options.noToken) {
     chunks.push(chalk.yellow.bold('Token Endpoint', chalk.gray('(POST only)')));
     chunks.push(chalk.white(`http://${options.host}:${availablePort}${options.tokenEndpoint}`));

@@ -18,6 +18,7 @@ import { genReqId } from './helpers/generateReqId';
 import { portFinder } from './helpers/portFinder';
 import dynamicRoutes from './routes/dynamic';
 import tokenRoutes from './routes/token';
+import snapshotRoutes from './routes/snapshot';
 import redirectRoutes from './routes/routesRedirect';
 import displayWelcome from './helpers/displayWelcome';
 import writeSnapshot from './plugins/writeSnapshot';
@@ -102,6 +103,7 @@ export const server = async (options: MokksyConfig): Promise<void> => {
   app.register(dynamicRoutes, optsWithPort);
   app.register(tokenRoutes, optsWithPort);
   app.register(redirectRoutes, optsWithPort);
+  app.register(snapshotRoutes, optsWithPort);
 
   // add users option to write the database snapshot
   app.register(writeSnapshot, optsWithPort);
