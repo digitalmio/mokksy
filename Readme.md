@@ -11,11 +11,22 @@ I started working on it during the late evenings during the global lockdown in 2
 
 ## Installation
 
-The easiest way to enjoy Mokksy is to install it globally. Simply run: `npm install -g mokksy` or `yarn global add mokksy`
+The easiest way to enjoy Mokksy is to install it globally via NPM or Yarn. Alternatively, if you want to run it without installing you can run it via NPX.
 
-Sometimes, depending on your OS, you _might_ need to install package as root/Administrator. On Linux and MacOS you can do it by prefixing the command with `sudo`.
+```
+npm install -g mokksy
+yarn global add mokksy
+```
 
-If you don't want to install Mokksy globally, you can install it locally as a Dev dependency: `npm install --save-dev mokksy` or `yarn add -D mokksy`. Then please add a `script` in your `package.json` section, ie: `mokksy: mokksy`. This way you will have access to Mokksy via: `npm run mokksy` or `yarn run mokksy`.
+Sometimes, depending on your OS, you _might_ need to install package as root/Administrator. On Linux and MacOS you can do it by prefixing the command with `sudo`. On Windows you are on your own, I didn't used this OS for years now.
+
+If you don't want to install Mokksy globally, you can install it locally as a Dev dependency: `npm install --save-dev mokksy` or `yarn add -D mokksy`. Then please add a `script` in your `package.json` section, ie: `mokksy: mokksy`. This way you will have access to Mokksy via: `npm run mokksy` or `yarn run mokksy`. To run Mokksy via NPX, run:
+
+```
+npx mokksy run db.json
+```
+
+But bear in mind that it will be slower than installed version as NPM is re-downloading and re-installing app on each start.
 
 ## Getting started, aka. prepaging the database file
 
