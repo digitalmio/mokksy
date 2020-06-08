@@ -30,6 +30,7 @@ const generateReqId_1 = require("./helpers/generateReqId");
 const portFinder_1 = require("./helpers/portFinder");
 const dynamic_1 = __importDefault(require("./routes/dynamic"));
 const token_1 = __importDefault(require("./routes/token"));
+const snapshot_1 = __importDefault(require("./routes/snapshot"));
 const routesRedirect_1 = __importDefault(require("./routes/routesRedirect"));
 const displayWelcome_1 = __importDefault(require("./helpers/displayWelcome"));
 const writeSnapshot_1 = __importDefault(require("./plugins/writeSnapshot"));
@@ -96,6 +97,7 @@ exports.server = (options) => __awaiter(void 0, void 0, void 0, function* () {
     app.register(dynamic_1.default, optsWithPort);
     app.register(token_1.default, optsWithPort);
     app.register(routesRedirect_1.default, optsWithPort);
+    app.register(snapshot_1.default, optsWithPort);
     // add users option to write the database snapshot
     app.register(writeSnapshot_1.default, optsWithPort);
     // export startServer to be able to run it async

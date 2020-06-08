@@ -16,6 +16,9 @@ exports.default = (options, availablePort) => {
         chunks.push(chalk_1.default.white(`http://${options.host}:${availablePort}`));
         chunks.push('');
     }
+    chunks.push(chalk_1.default.yellow.bold('Database snapshot', chalk_1.default.gray('(response might be very big)')));
+    chunks.push(chalk_1.default.white(`http://${options.host}:${availablePort}/_db`));
+    chunks.push('');
     if (!options.noToken) {
         chunks.push(chalk_1.default.yellow.bold('Token Endpoint', chalk_1.default.gray('(POST only)')));
         chunks.push(chalk_1.default.white(`http://${options.host}:${availablePort}${options.tokenEndpoint}`));
@@ -23,6 +26,5 @@ exports.default = (options, availablePort) => {
     }
     // actual links will be rendered by /routes/dynamic.ts file
     chunks.push(chalk_1.default.yellow.bold('Resources'));
-    console.clear();
     console.log(chunks.join('\n'));
 };
