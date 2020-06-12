@@ -4,12 +4,11 @@ import { server } from './server';
 import type { AnyObject, MokksyConfig } from '../types.d';
 
 export const runCommandSpec = {
-  command: 'run [options] <sourceFile>',
-  aliases: 'start',
+  command: '$0 [options] <sourceFile>',
   describe: 'run the server',
   builder: (yargs: Argv) =>
     yargs
-      .usage('$0 run [options] <sourceFile>')
+      .usage('$0 [options] <sourceFile>')
       .positional('sourceFile', {
         describe: 'JSON database file path',
         type: 'string',
@@ -129,10 +128,7 @@ export const runCommandSpec = {
           default: '',
         },
       })
-      .example(
-        '$0 run --nc -p 8080 db.json',
-        `Run 'db.json' database on port 8080 and disable CORS.`
-      ),
+      .example('$0 --nc -p 8080 db.json', `Run 'db.json' database on port 8080 and disable CORS.`),
   handler: (argv: AnyObject) => {
     // run server
     const confKeys = pick(argv, [
