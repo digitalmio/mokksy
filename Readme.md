@@ -4,10 +4,12 @@
 
 This project is work in progress. Feel free to play with it, use for testing or local development, but do not use it on production. Wait for at least 0.1.0 version.
 
-Mokksy is heavily ispired by the [JSON-Server](https://github.com/typicode/json-server).
-I started working on it during the late evenings during the global lockdown in 2020 as a "pet" project to tinker with the CLI and play with Typescript. Mokksy is build on [Fastify](https://fastify.io).
+Mokksy is heavily inspired by the [JSON-Server](https://github.com/typicode/json-server), but Mokksy is build on top of [Fastify](https://fastify.io), when JSON-Server on Express.
+I started working on it on the late evenings during the global lockdown in 2020 as a "pet" project,to tinker with the CLI and play with Typescript.
 
-![Mokksy console screenshot](https://github.com/digitalmio/mokksy/raw/master/docs/ss.png 'Mokksy')
+If you like the package, star it on Github, tell your friends about it. If you have any idea for future functionality, feel free to contact me, or raise an issue on Github.
+
+![Running Mokksy screenshot](https://github.com/digitalmio/mokksy/raw/master/docs/ss.png 'Mokksy')
 
 ## Installation
 
@@ -20,17 +22,17 @@ yarn global add mokksy
 
 Sometimes, depending on your OS, you _might_ need to install package as root/Administrator. On Linux and MacOS you can do it by prefixing the command with `sudo`. On Windows you are on your own, I didn't used this OS for years now.
 
-If you don't want to install Mokksy globally, you can install it locally as a Dev dependency: `npm install --save-dev mokksy` or `yarn add -D mokksy`. Then please add a `script` in your `package.json` section, ie: `mokksy: mokksy`. This way you will have access to Mokksy via: `npm run mokksy` or `yarn run mokksy`. To run Mokksy via NPX, run:
+If you don't want to install Mokksy globally, you can install it locally as a Dev dependency: `npm install --save-dev mokksy` or `yarn add -D mokksy`. Then please add a `script` in your `package.json` section, ie: `mokksy: mokksy`. This way you will have access to Mokksy via: `npm run mokksy` or `yarn run mokksy`. To run Mokksy via NPM directly, without installing it, use NPX command:
 
 ```
-npx mokksy run db.json
+npx mokksy db.json
 ```
 
-But bear in mind that it will be slower than installed version as NPM is re-downloading and re-installing app on each start.
+But bear in mind that it will be slower than installed version as package needs to be re-downloaded and re-installed each time.
 
 ## Getting started, aka. prepaging the database file
 
-After installing the server, you need to create a `db.json` database file (you can call it whatever you like), something like:
+After installing the server, you need to create a `db.json` database file (file name is not important, you can call it whatever you like), something like:
 
 ```
 {
@@ -50,14 +52,16 @@ Alternatively, if your database file is publicly available on the internet (mayb
 
 ## Starting simple server
 
-At the moment Mokksy supports just one command: `run`.
+To start Mokksy, run following command in your terminal:
 
 ```
-mokksy run db.json
-mokksy run https://example.com/path/to/your/database.json
+mokksy db.json
+mokksy https://example.com/path/to/your/database.json
 ```
 
-This command will run simple server. Mokksy will try to run on port 5000. If this port will be used by other app, Mokksy will find other free port.
+First one for local file, second one is to run database available online.
+
+This command will start simple server. Mokksy will try to run on port 5000. If this port will be used by other app, Mokksy will find other free port.
 You will see all available endpoints printed in the terminal, like in the screenshot at the top of this Readme.
 
 ## API prefixing
@@ -66,11 +70,11 @@ By default API routes are not prefixed, but you can use `--api` switch to provid
 
 ## Customise the server
 
-To check available options, to customise your server, run `mokksy run --help`.
+To check available options, to customise your server, type `mokksy --help`.
 This will print list of available options:
 
 ```
-mokksy run [options] <sourceFile>
+mokksy [options] <sourceFile>
 
 Positionals:
   sourceFile  JSON database file path                                            [string] [required]
@@ -112,7 +116,7 @@ Options:
                                                                               [string] [default: ""]
 
 Examples:
-  mokksy run --nc -p 8080 db.json  Run 'db.json' database on port 8080 and disable CORS.
+  mokksy --nc -p 8080 db.json  Start 'db.json' database on port 8080 and disable CORS.
 ```
 
 ## Database snapshot
@@ -216,7 +220,7 @@ As per example above, you can use some variables, that will be replaced with act
 Then, run Mokksy with `-t` switch, for example:
 
 ```
-mokksy run db.json -t template.json
+mokksy db.json -t template.json
 ```
 
 ## Token protection and Token endpoint
@@ -224,7 +228,7 @@ mokksy run db.json -t template.json
 You can protect the keys from unauthorised access. To do so, please provide the comma-separated list of keys, ie:
 
 ```
-mokksy run db.json --pe posts,comments
+mokksy db.json --pe posts,comments
 ```
 
 will protect all requests to `posts` and `comments` endpoints (get, post, put, delete). You will see 401 error whrn you will try to access `http://localhost:5000/posts` without the token.
@@ -257,7 +261,7 @@ curl "http://localhost:5000/posts" \
 
 ## Static file server
 
-Mokksy can be also used as a static file server. How? Simply create `public` folder and run Mokksy from that directory.
+Mokksy can be also used as a static file server. How? Simply create `public` folder and start Mokksy from that directory.
 Alternatively, use `-s` switch to set different folder for static files directory.
 Static file server is always mapping files to root path `/`.
 
@@ -270,7 +274,7 @@ Cross Origin Resource Sharing is enabled by default. It can be disabled using `-
 You can provide the list of custom routes in the file, in JSON format where key is the final URL and value is the URL where we should redirect your request to.
 
 ```
-mokksy run db.json -r routes.json
+mokksy db.json -r routes.json
 ```
 
 At the moment this is super simple, static solution. If you need something more dynamic, let me know what's your use case.
