@@ -1,6 +1,6 @@
 {
   "name": "mokksy",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "bin": "./dist/index.js",
   "license": "MIT",
   "repository": "https://github.com/digitalmio/mokksy",
