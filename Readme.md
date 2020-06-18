@@ -1,4 +1,4 @@
-![Mokksy](https://github.com/digitalmio/mokksy/raw/master/public/images/mokksy_bar.png)
+<p align="center"><img src="https://github.com/digitalmio/mokksy/raw/master/public/images/mokksy_dark.png" alt="Mokksy"></p>
 
 # Fully functional mock JSON server with great extras
 
@@ -9,7 +9,7 @@ I started working on it on the late evenings during the global lockdown in 2020 
 
 If you like the package, star it on Github, tell your friends about it. If you have any idea for future functionality, feel free to contact me, or raise an issue on Github.
 
-![Running Mokksy screenshot](https://github.com/digitalmio/mokksy/raw/master/docs/ss.png)
+<img src="https://github.com/digitalmio/mokksy/raw/master/docs/ss.png" alt="Mokksy console" />
 
 # Installation
 
