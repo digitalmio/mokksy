@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/digitalmio/mokksy/raw/master/public/images/mokksy_dark.png" alt="Mokksy"></p>
+<img src="https://github.com/digitalmio/mokksy/raw/master/public/images/mokksy_dark.png" alt="Mokksy">
 
 # Fully functional mock JSON server with great extras
 
