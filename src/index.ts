@@ -16,4 +16,5 @@ const { argv } = yargs
   .alias('help', 'h')
   .version(pkg.version)
   .alias('version', 'v')
-  .wrap(Math.min(100, yargs.terminalWidth()));
+  .wrap(Math.min(100, yargs.terminalWidth()))
+  .pkgConf('mokksy');
