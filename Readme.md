@@ -2,6 +2,8 @@
 
 # Fully functional mock JSON server with great extras
 
+Mokksy is a mocking tool that lets you build, test and share feature complete Javascript application, even if your API doesn't exist using user-friendly JSON files to mock data.
+
 This project is work in progress. Feel free to play with it, use for testing or local development, but do not use it on production. Wait for at least 0.1.0 version.
 
 Mokksy is heavily inspired by the [JSON-Server](https://github.com/typicode/json-server), but Mokksy is build on top of [Fastify](https://fastify.io), when JSON-Server on Express.
@@ -275,6 +277,14 @@ You can provide the list of custom routes in the file, in JSON format where key 
 
 ```
 mokksy db.json -r routes.json
+```
+
+`routes.json` file should look something like this:
+
+```
+{
+  "/me": "/profile"
+}
 ```
 
 At the moment this is super simple, static solution. If you need something more dynamic, let me know what's your use case.
