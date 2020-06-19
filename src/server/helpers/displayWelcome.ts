@@ -10,7 +10,7 @@ export default (options: MokksyConfig, availablePort: number) => {
   chunks.push('');
 
   if (!options.noStatic) {
-    chunks.push(chalk.yellow.bold('Homepage'));
+    chunks.push(chalk.yellow.bold('Root resource / homepage'));
     chunks.push(chalk.white(`http://${options.host}:${availablePort}`));
     chunks.push('');
   }
