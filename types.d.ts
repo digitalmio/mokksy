@@ -1,13 +1,10 @@
-import Lowdb from 'lowdb';
-
 declare interface AnyObject {
   [key: string]: any;
 }
 
-interface MokksyConfig {
+export interface MokksyConfig {
   sourceFile: string;
   watch?: boolean;
-  host: string;
   port: number;
   noCors: boolean;
   noStatic: boolean;
@@ -31,7 +28,6 @@ interface MokksyConfig {
 
 declare module 'fastify' {
   interface FastifyInstance {
-    // lowDb: Lowdb.LowdbSync<any[]>;
     lowDb: any;
   }
 

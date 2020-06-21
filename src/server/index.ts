@@ -115,7 +115,7 @@ export const server = async (options: MokksyConfig): Promise<void> => {
       displayWelcome(options, serverPort);
 
       // ...and go!
-      await app.listen(serverPort, options.host);
+      await app.listen(serverPort, '0.0.0.0');
     } catch (err) {
       app.log.error(err);
       process.exit(1);

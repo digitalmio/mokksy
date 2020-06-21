@@ -12,7 +12,7 @@ const displayLog = (key: string, type: string, opts: MokksyConfig) => {
   const protectedEndpoints = opts.protectEndpoints.split(',');
 
   const chunks = [];
-  chunks.push(chalk.white(`http://${opts.host}:${opts.availablePort}${opts.apiUrlPrefix}/${key}`));
+  chunks.push(chalk.white(`http://localhost:${opts.availablePort}${opts.apiUrlPrefix}/${key}`));
   chunks.push(chalk.green(type));
   if (protectedEndpoints.includes(key)) {
     chunks.push(chalk.red('(JWT Protected)'));

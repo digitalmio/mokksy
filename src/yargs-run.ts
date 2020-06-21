@@ -19,11 +19,6 @@ export const runCommandSpec = {
           description: 'Set port',
           default: 5000,
         },
-        host: {
-          alias: 'H',
-          description: 'Set host',
-          default: 'localhost',
-        },
         apiUrlPrefix: {
           alias: 'api',
           description: `Prefix the URL path, ie. '/api' for '/api/posts'. Path must start with '/'`,
@@ -134,7 +129,6 @@ export const runCommandSpec = {
     const confKeys = pick(argv, [
       'sourceFile',
       'port',
-      'host',
       'apiUrlPrefix',
       'routes',
       'idKey',

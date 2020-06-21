@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import internalIp from 'internal-ip';
 import type { MokksyConfig } from '../../../types.d';
 
 export default (options: MokksyConfig, availablePort: number) => {
@@ -11,17 +12,23 @@ export default (options: MokksyConfig, availablePort: number) => {
 
   if (!options.noStatic) {
     chunks.push(chalk.yellow.bold('Root resource / homepage'));
-    chunks.push(chalk.white(`http://${options.host}:${availablePort}`));
+    chunks.push(chalk.white(`http://localhost:${availablePort}`));
+    chunks.push(
+      // eslint-disable-next-line operator-linebreak
+      chalk.white(`http://${internalIp.v4.sync()}:${availablePort}`) +
+        chalk.gray(' to share your server in local network*')
+    );
+    chunks.push(chalk.gray('* this might be blocked by your network admin'));
     chunks.push('');
   }
 
   chunks.push(chalk.yellow.bold('Database snapshot', chalk.gray('(response might be very big)')));
-  chunks.push(chalk.white(`http://${options.host}:${availablePort}/_db`));
+  chunks.push(chalk.white(`http://localhost:${availablePort}/_db`));
   chunks.push('');
 
   if (!options.noToken) {
     chunks.push(chalk.yellow.bold('Token Endpoint', chalk.gray('(POST only)')));
-    chunks.push(chalk.white(`http://${options.host}:${availablePort}${options.tokenEndpoint}`));
+    chunks.push(chalk.white(`http://localhost:${availablePort}${options.tokenEndpoint}`));
     chunks.push('');
   }
 

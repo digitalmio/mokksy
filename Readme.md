@@ -85,7 +85,6 @@ Options:
   --help, -h                 Show this help page                                           [boolean]
   --version, -v              Show version number                                           [boolean]
   --port, -p                 Set port                                                [default: 5000]
-  --host, -H                 Set host                                         [default: "localhost"]
   --apiUrlPrefix, --api      Prefix the URL path, ie. '/api' for '/api/posts'. Path must start with
                              '/'                                              [string] [default: ""]
   --routes, -r               List of custom routes as JSON key:value. On request of the key route
