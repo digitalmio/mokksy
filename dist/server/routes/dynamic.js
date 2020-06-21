@@ -21,7 +21,7 @@ const displayLog = (key, type, opts) => {
     // get list of protected endpoints
     const protectedEndpoints = opts.protectEndpoints.split(',');
     const chunks = [];
-    chunks.push(chalk_1.default.white(`http://${opts.host}:${opts.availablePort}${opts.apiUrlPrefix}/${key}`));
+    chunks.push(chalk_1.default.white(`http://localhost:${opts.availablePort}${opts.apiUrlPrefix}/${key}`));
     chunks.push(chalk_1.default.green(type));
     if (protectedEndpoints.includes(key)) {
         chunks.push(chalk_1.default.red('(JWT Protected)'));

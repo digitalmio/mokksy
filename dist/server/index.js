@@ -106,7 +106,7 @@ exports.server = (options) => __awaiter(void 0, void 0, void 0, function* () {
             // display all available links in the console before starting server
             displayWelcome_1.default(options, serverPort);
             // ...and go!
-            yield app.listen(serverPort, options.host);
+            yield app.listen(serverPort, '0.0.0.0');
         }
         catch (err) {
             app.log.error(err);

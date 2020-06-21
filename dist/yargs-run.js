@@ -4,11 +4,10 @@ exports.runCommandSpec = void 0;
 const lodash_1 = require("lodash");
 const server_1 = require("./server");
 exports.runCommandSpec = {
-    command: 'run [options] <sourceFile>',
-    aliases: 'start',
+    command: '$0 [options] <sourceFile>',
     describe: 'run the server',
     builder: (yargs) => yargs
-        .usage('$0 run [options] <sourceFile>')
+        .usage('$0 [options] <sourceFile>')
         .positional('sourceFile', {
         describe: 'JSON database file path',
         type: 'string',
@@ -18,11 +17,6 @@ exports.runCommandSpec = {
             alias: 'p',
             description: 'Set port',
             default: 5000,
-        },
-        host: {
-            alias: 'H',
-            description: 'Set host',
-            default: 'localhost',
         },
         apiUrlPrefix: {
             alias: 'api',
@@ -126,13 +120,12 @@ exports.runCommandSpec = {
             default: '',
         },
     })
-        .example('$0 run --nc -p 8080 db.json', `Run 'db.json' database on port 8080 and disable CORS.`),
+        .example('$0 --nc -p 8080 db.json', `Run 'db.json' database on port 8080 and disable CORS.`),
     handler: (argv) => {
         // run server
         const confKeys = lodash_1.pick(argv, [
             'sourceFile',
             'port',
-            'host',
             'apiUrlPrefix',
             'routes',
             'idKey',
