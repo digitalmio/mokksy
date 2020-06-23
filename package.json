@@ -58,14 +58,12 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "boxen": "^4.2.0",
     "chalk": "^4.0.0",
     "fastify": "^2.13.1",
     "fastify-cors": "^3.0.3",
     "fastify-favicon": "^2.0.0",
     "fastify-jwt": "^1.3.1",
     "fastify-plugin": "^1.6.1",
-    "fastify-rate-limit": "^3.0.1",
     "fastify-static": "^2.7.0",
     "find-up": "^4.1.0",
     "get-port": "^5.1.1",
@@ -79,7 +77,6 @@
     "pad-left": "^2.1.0",
     "pino-pretty": "^4.0.0",
     "pluralize": "^8.0.0",
-    "portfinder": "^1.0.26",
     "pretty-ms": "^7.0.0",
     "pump": "^3.0.0",
     "split2": "^3.1.1",
