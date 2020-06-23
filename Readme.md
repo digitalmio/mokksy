@@ -4,12 +4,12 @@
 
 Mokksy is a mocking tool that lets you build, test and share feature complete Javascript application, even if your API doesn't exist using user-friendly JSON files to mock data.
 
-This project is work in progress. Feel free to play with it, use for testing or local development, but do not use it on production. Wait for at least 0.1.0 version.
-
-Mokksy is heavily inspired by the [JSON-Server](https://github.com/typicode/json-server), but Mokksy is build on top of [Fastify](https://fastify.io), when JSON-Server on Express.
+Mokksy is heavily inspired by the [JSON-Server](https://github.com/typicode/json-server), but Mokksy is build on top of [Fastify](https://fastify.io), when JSON-Server on Express. Mokksy also contains more features like response templates and JWT endpoit protection.
 I started working on it on the late evenings during the global lockdown in 2020 as a "pet" project,to tinker with the CLI and play with Typescript.
 
 If you like the package, star it on Github, tell your friends about it. If you have any idea for future functionality, feel free to contact me, or raise an issue on Github.
+
+Finally, if you like my code and looking for contract developer to help you deliver high quality JavaScript product - I am available for contract work. I'm UK based.
 
 <img src="https://github.com/digitalmio/mokksy/raw/master/docs/ss.png" alt="Mokksy console" />
 
@@ -32,14 +32,15 @@ npx mokksy db.json
 
 But bear in mind that it will be slower than installed version as package needs to be re-downloaded and re-installed each time.
 
-# Getting started, aka. prepaging the database file
+# Getting started, aka. preparing the database file
 
 After installing the server, you need to create a `db.json` database file (file name is not important, you can call it whatever you like), something like:
 
 ```
 {
   "posts: [
-    {"id": 1, "title": "This is my first post"}
+    {"id": 1, "title": "This is my first post"},
+    {"id": 2, "title": "This is my second post"},
   ],
   "comments": [
     {"id": 1, "postId": 1, "body": "This is the very cool first comment"}
@@ -119,6 +120,8 @@ Options:
 Examples:
   mokksy --nc -p 8080 db.json  Start 'db.json' database on port 8080 and disable CORS.
 ```
+
+I know, this is a lot of options and your command can become very, very long. So, as alternative, you can create `.mokksyrc` or `.mokksyrc.json` file with configuration. This way you can reduce you command to `mokksy db.json`. Mokksy will check if config file exists and will load it automatically.
 
 # Database snapshot
 
